@@ -1,33 +1,39 @@
-#include "built_in.h"
+#include <string.h>
+#include <stdio.h>
+#include "TM4C123.h"                    // Device header
 
-extern sfr char  TFT_DP_Lo;
-extern sfr char TFT_DP_Hi;
-extern sfr sbit TFT_WR;
-extern sfr sbit TFT_RD;
-extern sfr sbit TFT_CS;
-extern sfr sbit TFT_RS;
-extern sfr sbit TFT_RST;
+#define Lo(X) (((unsigned char *)(&X))[0])
+#define Hi(X) (((unsigned char *)(&X))[1])
+#define fabs(X) ((X)>0? (X) : (-1)*(X))
+#define delay_ms(X) {}
 
-
-extern sfr char  TFT_DP_Lo_Direction;
-extern sfr char  TFT_DP_Hi_Direction;
-extern sfr  TFT_WR_Direction;
-extern sfr  TFT_RD_Direction;
-extern sfr  TFT_CS_Direction;
-extern sfr  TFT_RS_Direction;
-extern sfr  TFT_RST_Direction;
+#define TFT_DP_Lo (GPIOB->DATA)
+#define TFT_DP_Hi (GPIOA->DATA)
+#define TFT_WR  (GPIOC->DATA)
+#define TFT_RD  (GPIOC->DATA)
+#define TFT_CS  (GPIOC->DATA)
+#define TFT_RS  (GPIOC->DATA)
+#define TFT_RST (GPIOC->DATA)
 
 
-const unsigned int Black = 0;
-const unsigned int Red = 63488;
-const unsigned int Green = 2016;
-const unsigned int Blue = 31;
-const unsigned int White = 65535;
-const unsigned int Purple = 61727;
-const unsigned int Yellow = 65504;
-const unsigned int Cyan = 2047;
-const unsigned int d_gray = 21130;
-const unsigned int l_gray = 31727;
+#define TFT_DP_Lo_Direction (GPIOB->DIR)
+#define TFT_DP_Hi_Direction (GPIOA->DIR);
+#define TFT_WR_Direction	(GPIOC->DIR)
+#define TFT_RD_Direction	(GPIOC->DIR)
+#define TFT_CS_Direction	(GPIOC->DIR)
+#define TFT_RS_Direction	(GPIOC->DIR)
+#define TFT_RST_Direction	(GPIOC->DIR)
+
+const unsigned short Black = 0;
+const unsigned short Red = 63488;
+const unsigned short Green = 2016;
+const unsigned short Blue = 31;
+const unsigned short White = 65535;
+const unsigned short Purple = 61727;
+const unsigned short Yellow = 65504;
+const unsigned short Cyan = 2047;
+const unsigned short d_gray = 21130;
+const unsigned short l_gray = 31727;
 
 
 const char FONT_8x8[784] = {
@@ -127,8 +133,8 @@ const char FONT_8x8[784] = {
 0x70,0x18,0x18,0x0E,0x18,0x18,0x70,0x00, // }
 0x3B,0x6E,0x00,0x00,0x00,0x00,0x00,0x00, // ~
 0x1C,0x36,0x36,0x1C,0x00,0x00,0x00,0x00, // DEL
-0x60,0x90,0x90,0x60,0x00,0x00,0x00,0x00,  // DEGREE use:€
-0x22,0x77,0x7f,0x7f,0x3e,0x1c,0x08,0x00         //HEART use:
+0x60,0x90,0x90,0x60,0x00,0x00,0x00,0x00,  // DEGREE use:ï¿½
+0x22,0x77,0x7f,0x7f,0x3e,0x1c,0x08,0x00         //HEART use:ï¿½
 };
 
 const char FONT_16x16[3040]  = {
@@ -231,37 +237,37 @@ const char FONT_16x16[3040]  = {
 
 
 
-void Write_Command(unsigned int Wcommand)
+void Write_Command(unsigned short Wcommand)
 {
   TFT_RD = 1;
   TFT_RS = 0;
-  TFT_DP_Hi = wcommand >> 8;
-  TFT_DP_Lo = wcommand ;
+  TFT_DP_Hi = Wcommand >> 8;
+  TFT_DP_Lo = Wcommand ;
   TFT_WR = 0;
   TFT_WR = 1;
 }
 
-void Write_Data(unsigned int Wdata)
+void Write_Data(unsigned short Wdata)
 {
   TFT_RD = 1;
   TFT_RS = 1 ;
   TFT_DP_Hi = Wdata >>8 ;
-  TFT_DP_Lo = wdata;
+  TFT_DP_Lo = Wdata;
   TFT_WR = 0;
   TFT_WR = 1 ;
 }
 
-void Write_Command_Data(unsigned int Wcommand,unsigned int Wdata)
+void Write_Command_Data(unsigned short Wcommand,unsigned short Wdata)
 {
-   write_Command(Wcommand);
+   Write_Command(Wcommand);
    Write_Data(Wdata);
 }
 
-void TFT_Set_Address(unsigned int PX1,unsigned int PY1,unsigned int PX2,unsigned int PY2)
+void TFT_Set_Address(unsigned short PX1,unsigned short PY1,unsigned short PX2,unsigned short PY2)
 {
   Write_Command_Data(68,(PX2 << 8) + PX1 );  //Column address start2
   Write_Command_Data(69,PY1);      //Column address start1
-  Write_Command_Data(70,Py2);  //Column address end2
+  Write_Command_Data(70,PY2);  //Column address end2
   Write_Command_Data(78,PX1);      //Column address end1
   Write_Command_Data(79,PY1);  //Row address start2
   Write_Command(34);
@@ -323,9 +329,9 @@ void TFT_Init()
 }
 
 
-unsigned int Set_color(unsigned int r,unsigned int g,unsigned int b)
+unsigned short Set_color(unsigned short R,unsigned short G,unsigned short B)
 {
-  unsigned int temp;
+  unsigned short temp;
   Hi(temp) = (R & 0xF8) | (G >> 5);
               G = (G & 0x1C);
   Lo(temp) = (G << 3) | (B >>3);
@@ -333,9 +339,9 @@ unsigned int Set_color(unsigned int r,unsigned int g,unsigned int b)
 }
 
 
-void TFT_Fill(unsigned int color)
+void TFT_Fill(unsigned short color)
 {
-  unsigned int i,j;
+  unsigned short i,j;
   TFT_CS  = 0;
   TFT_Set_Address(0,0,239,319);
   Write_Data(color);
@@ -351,9 +357,9 @@ void TFT_Fill(unsigned int color)
 }
 
 
-void TFT_Box(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2,unsigned int color)
+void TFT_Box(unsigned short x1,unsigned short y1,unsigned short x2,unsigned short y2,unsigned short color)
 {
-  unsigned int  i,j;
+  unsigned short  i,j;
   TFT_CS  = 0;
   TFT_Set_Address(x1,y1,x2,y2);
   Write_Data(color);
@@ -369,7 +375,7 @@ void TFT_Box(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2,uns
 }
 
 
-void TFT_Dot(unsigned int x,unsigned int y,unsigned int color)
+void TFT_Dot(unsigned short x,unsigned short y,unsigned short color)
 {
   TFT_CS  = 0;
   TFT_Set_Address(x,y,x,y);
@@ -377,18 +383,18 @@ void TFT_Dot(unsigned int x,unsigned int y,unsigned int color)
   TFT_CS = 1;
 }
 
-void TFT_Line(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2,unsigned int color)
+void TFT_Line(unsigned short x1,unsigned short y1,unsigned short x2,unsigned short y2,unsigned short color)
 {
 int x,y,addx,addy,dx,dy;
 long P;
-unsigned int i;
+unsigned short i;
 
   dx = fabs(x2-x1);
   dy = fabs(y2-y1);
   x = x1;
   y = y1;
 
-   if(X1 > x2)
+   if(x1 > x2)
    {
        addx = -1;
    }
@@ -415,7 +421,7 @@ unsigned int i;
    for(i = 1; i <= (dx +1); i++)
    {
 
-     TFT_dot(x,y,color);
+     TFT_Dot(x,y,color);
 
      if(P < 0)
      {
@@ -437,7 +443,7 @@ unsigned int i;
     for(i = 1; i <= (dy +1); i++)
     {
 
-     TFT_dot(x,y,color);
+     TFT_Dot(x,y,color);
 
      if(P<0)
      {
@@ -454,17 +460,17 @@ unsigned int i;
    }
 }
 
-void TFT_H_Line(char x1,char x2,unsigned int y_pos,unsigned int color)
+void TFT_H_Line(char x1,char x2,unsigned short y_pos,unsigned short color)
 {
   TFT_Box(x1,y_pos,x2,y_pos+1,color);
 }
 
-void TFT_V_Line(unsigned int y1,unsigned int y2,char x_pos,unsigned int color)
+void TFT_V_Line(unsigned short y1,unsigned short y2,char x_pos,unsigned short color)
 {
   TFT_Box(x_pos,y1,x_pos+1,y2,color);
 }
 
-void TFT_Rectangle(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2,unsigned int color)
+void TFT_Rectangle(unsigned short x1,unsigned short y1,unsigned short x2,unsigned short y2,unsigned short color)
 {
   TFT_H_Line(x1,x2,y1,color);
   TFT_H_Line(x1,x2,y2,color);
@@ -472,7 +478,7 @@ void TFT_Rectangle(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int 
   TFT_V_Line(y1,y2,x2,color);
 }
 
-void TFT_Circle(unsigned int x,unsigned int y,char radius,char fill,unsigned int color)
+void TFT_Circle(unsigned short x,unsigned short y,char radius,char fill,unsigned short color)
 {
 int a_,b_,P;
  a_ = 0;
@@ -510,25 +516,25 @@ int a_,b_,P;
   }
 }
 
-void TFT_Char(char C,unsigned int x,unsigned int y,char DimFont,unsigned int Fcolor,unsigned int Bcolor)
+void TFT_Char(char C,unsigned short x,unsigned short y,char DimFont,unsigned short Fcolor,unsigned short Bcolor)
 {
-const char *PtrFont;
-unsigned int Cptrfont;
-unsigned int font8x8[8];
-unsigned int font16x16[16];
+const char *ptrfont;
+unsigned short Cptrfont;
+unsigned short font8x8[8];
+unsigned short font16x16[16];
 char k,i,print1,print2;
-unsigned int print3,print4;
+unsigned short print3,print4;
 
 if(DimFont == 8)
 {
-     ptrfont = &Font_8x8;
+     ptrfont = &FONT_8x8;
      Cptrfont = (C-32)*8;
      ptrfont = ptrfont + Cptrfont;
 
      for(k = 0; k <= 7; k++)
      {
       font8x8[k] = *ptrfont;
-      ptrFont++;
+      ptrfont++;
      }
      
      TFT_CS = 0;
@@ -555,17 +561,17 @@ if(DimFont == 8)
 
 else if(DimFont == 16)
 {
-     ptrfont = &Font_16x16;
+     ptrfont = &FONT_16x16;
      Cptrfont = (C-32)*32;
      ptrfont = ptrfont + Cptrfont;
 
      for(k = 0; k <= 15; k++)
      {
       font16x16[k] = *ptrfont;
-      ptrFont++;
+      ptrfont++;
       font16x16[k] = (font16x16[k] << 8);
       font16x16[k] = font16x16[k] + *ptrfont;
-      ptrFont++;
+      ptrfont++;
      }
 
      TFT_CS = 0;
@@ -595,7 +601,7 @@ else if(DimFont == 16)
 }
 
 
-void TFT_Text(unsigned char* S,unsigned int x,unsigned int y,char DimFont,unsigned int Fcolor,unsigned int Bcolor)
+void TFT_Text(unsigned char* S,unsigned short x,unsigned short y,char DimFont,unsigned short Fcolor,unsigned short Bcolor)
 {
   int lenght,cnt;
   char buffer[24];
@@ -625,8 +631,8 @@ void TFT_Text(unsigned char* S,unsigned int x,unsigned int y,char DimFont,unsign
 }
 
 
-void TFT_Image(unsigned int pos_x,unsigned int pos_y,unsigned int dim_x,unsigned int dim_y,const unsigned int *picture){
-    unsigned int x, y;
+void TFT_Image(unsigned short pos_x,unsigned short pos_y,unsigned short dim_x,unsigned short dim_y,const unsigned short *picture){
+    unsigned short x, y;
 
     TFT_CS  = 0;
     TFT_Set_Address(pos_x, pos_y, pos_x + dim_x - 1, pos_y + dim_y - 1);
