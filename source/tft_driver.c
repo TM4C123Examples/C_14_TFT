@@ -5,7 +5,8 @@
 #define Lo(X) (((unsigned char *)(&X))[0])
 #define Hi(X) (((unsigned char *)(&X))[1])
 #define fabs(X) ((X)>0? (X) : (-1)*(X))
-#define delay_ms(X) {}
+
+void  delay_ms(int delay);
 
 const unsigned short Black = 0;
 const unsigned short Red = 63488;
@@ -258,6 +259,7 @@ void TFT_Set_Address(unsigned short PX1,unsigned short PY1,unsigned short PX2,un
 
 void TFT_Init()
 {
+		TFT_HAL_init();
         TFT_HAL_RD(1);
         TFT_HAL_RST(1);
         delay_ms(5);
