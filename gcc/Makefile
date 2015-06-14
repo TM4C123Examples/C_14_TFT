@@ -2,7 +2,7 @@ INCLUDE_DIRS:= device/include cmsis/include ../include ../retarget/gcc/include
 SOURCE_DIRS:=  device/source ../source ../retarget/gcc/source
 
 #the C files to compile
-CFILES:= system_TM4C123.c main.c retarget_tm4c.c serial_stdio.c tft_driver.c
+CFILES:= system_TM4C123.c main.c retarget_tm4c.c serial_stdio.c tft_driver.c tft_hal_tm4c.c
 #the assembly files assemble
 ASM_FILES:= startup_ARMCM4.S
 #the target microcontroller

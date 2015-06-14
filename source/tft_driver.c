@@ -1,28 +1,12 @@
 #include <string.h>
 #include <stdio.h>
 #include "TM4C123.h"                    // Device header
+#include "tft_hal.h"
 
 #define Lo(X) (((unsigned char *)(&X))[0])
 #define Hi(X) (((unsigned char *)(&X))[1])
 #define fabs(X) ((X)>0? (X) : (-1)*(X))
 #define delay_ms(X) {}
-
-#define TFT_DP_Lo (GPIOB->DATA)
-#define TFT_DP_Hi (GPIOA->DATA)
-#define TFT_WR  (GPIOC->DATA)
-#define TFT_RD  (GPIOC->DATA)
-#define TFT_CS  (GPIOC->DATA)
-#define TFT_RS  (GPIOC->DATA)
-#define TFT_RST (GPIOC->DATA)
-
-
-#define TFT_DP_Lo_Direction (GPIOB->DIR)
-#define TFT_DP_Hi_Direction (GPIOA->DIR);
-#define TFT_WR_Direction	(GPIOC->DIR)
-#define TFT_RD_Direction	(GPIOC->DIR)
-#define TFT_CS_Direction	(GPIOC->DIR)
-#define TFT_RS_Direction	(GPIOC->DIR)
-#define TFT_RST_Direction	(GPIOC->DIR)
 
 const unsigned short Black = 0;
 const unsigned short Red = 63488;
@@ -239,22 +223,22 @@ const char FONT_16x16[3040]  = {
 
 void Write_Command(unsigned short Wcommand)
 {
-  TFT_RD = 1;
-  TFT_RS = 0;
-  TFT_DP_Hi = Wcommand >> 8;
-  TFT_DP_Lo = Wcommand ;
-  TFT_WR = 0;
-  TFT_WR = 1;
+  TFT_HAL_RD(1);
+  TFT_HAL_RS(0);
+  TFT_HAL_DP_Hi(Wcommand >> 8);
+  TFT_HAL_DP_Lo(Wcommand) ;
+  TFT_HAL_WR(0);
+  TFT_HAL_WR(1);
 }
 
 void Write_Data(unsigned short Wdata)
 {
-  TFT_RD = 1;
-  TFT_RS = 1 ;
-  TFT_DP_Hi = Wdata >>8 ;
-  TFT_DP_Lo = Wdata;
-  TFT_WR = 0;
-  TFT_WR = 1 ;
+  TFT_HAL_RD(1);
+  TFT_HAL_RS(1) ;
+  TFT_HAL_DP_Hi(Wdata >>8);
+  TFT_HAL_DP_Lo(Wdata);
+  TFT_HAL_WR(0);
+  TFT_HAL_WR(1);
 }
 
 void Write_Command_Data(unsigned short Wcommand,unsigned short Wdata)
@@ -275,14 +259,14 @@ void TFT_Set_Address(unsigned short PX1,unsigned short PY1,unsigned short PX2,un
 
 void TFT_Init()
 {
-        TFT_RD = 1;
-        TFT_RST=1;
+        TFT_HAL_RD(1);
+        TFT_HAL_RST(1);
         delay_ms(5);
-        TFT_RST=0;
+        TFT_HAL_RST(0);
         delay_ms(15);
-        TFT_RST=1;
+        TFT_HAL_RST(1);
         delay_ms(15);
-        TFT_CS =0;
+        TFT_HAL_CS(0);
         Write_Command_Data(0x0000,0x0001);
         Write_Command_Data(0x0003,0xA8A4);
         Write_Command_Data(0x000C,0x0000);
@@ -325,7 +309,7 @@ void TFT_Init()
         Write_Command_Data(0x004f,0x0000);
         Write_Command_Data(0x004e,0x0000);
         Write_Command(0x0022);
-        TFT_CS =1;
+        TFT_HAL_CS(1);
 }
 
 
@@ -342,45 +326,45 @@ unsigned short Set_color(unsigned short R,unsigned short G,unsigned short B)
 void TFT_Fill(unsigned short color)
 {
   unsigned short i,j;
-  TFT_CS  = 0;
+  TFT_HAL_CS(0);
   TFT_Set_Address(0,0,239,319);
   Write_Data(color);
   for(i = 0; i <= 319; i++)
   {
     for(j = 0; j <= 239; j++)
     {
-        TFT_WR = 0;
-        TFT_WR = 1;
+        TFT_HAL_WR(0);
+        TFT_HAL_WR(1);
     }
   }
-  TFT_CS  = 1;
+  TFT_HAL_CS(1);
 }
 
 
 void TFT_Box(unsigned short x1,unsigned short y1,unsigned short x2,unsigned short y2,unsigned short color)
 {
   unsigned short  i,j;
-  TFT_CS  = 0;
+  TFT_HAL_CS(0);
   TFT_Set_Address(x1,y1,x2,y2);
   Write_Data(color);
   for(i = y1; i <= y2; i++)
   {
     for(j = x1; j <= x2; j++)
     {
-        TFT_WR = 0;
-        TFT_WR = 1;
+        TFT_HAL_WR(0);
+        TFT_HAL_WR(1);
     }
   }
-  TFT_CS  = 1;
+  TFT_HAL_CS(1);
 }
 
 
 void TFT_Dot(unsigned short x,unsigned short y,unsigned short color)
 {
-  TFT_CS  = 0;
+  TFT_HAL_CS(0);
   TFT_Set_Address(x,y,x,y);
   Write_Data(color);
-  TFT_CS = 1;
+  TFT_HAL_CS(1);
 }
 
 void TFT_Line(unsigned short x1,unsigned short y1,unsigned short x2,unsigned short y2,unsigned short color)
@@ -537,7 +521,7 @@ if(DimFont == 8)
       ptrfont++;
      }
      
-     TFT_CS = 0;
+     TFT_HAL_CS(0);
      TFT_Set_Address(x,y,x+7,y+7);
      for(i = 0; i <= 7; i++)
      {
@@ -556,7 +540,7 @@ if(DimFont == 8)
           font8x8[i] = font8x8[i] << 1;
        }
      }
-     TFT_CS = 1;
+     TFT_HAL_CS(1);
 }
 
 else if(DimFont == 16)
@@ -574,7 +558,7 @@ else if(DimFont == 16)
       ptrfont++;
      }
 
-     TFT_CS = 0;
+     TFT_HAL_CS(0);
      TFT_Set_Address(x,y,x+15,y+15);
      for(i = 0; i <= 15; i++)
      {
@@ -595,7 +579,7 @@ else if(DimFont == 16)
         font16x16[i] = font16x16[i] << 1;
        }
      }
-     TFT_CS = 1;
+     TFT_HAL_CS(1);
 }
 
 }
@@ -634,12 +618,12 @@ void TFT_Text(unsigned char* S,unsigned short x,unsigned short y,char DimFont,un
 void TFT_Image(unsigned short pos_x,unsigned short pos_y,unsigned short dim_x,unsigned short dim_y,const unsigned short *picture){
     unsigned short x, y;
 
-    TFT_CS  = 0;
+    TFT_HAL_CS(0);
     TFT_Set_Address(pos_x, pos_y, pos_x + dim_x - 1, pos_y + dim_y - 1);
     for(y = pos_y; y < (pos_y + dim_y); y++ ) {
         for(x = pos_x; x < (pos_x + dim_x); x++ ) {
             Write_Data(*picture++);
         }
     }
-    TFT_CS = 1;
+    TFT_HAL_CS(1);
 }
