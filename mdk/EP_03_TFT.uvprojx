@@ -414,14 +414,14 @@
               <FilePath>..\source\main.c</FilePath>
             </File>
             <File>
-              <FileName>retarget.c</FileName>
+              <FileName>tft_driver.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\retarget.c</FilePath>
+              <FilePath>..\source\tft_driver.c</FilePath>
             </File>
             <File>
-              <FileName>retarget_tm4c.c</FileName>
+              <FileName>tft_hal_tm4c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\source\retarget_tm4c.c</FilePath>
+              <FilePath>..\source\tft_hal_tm4c.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'C_03_UART_TIVAC' 
+ * Project: 'EP_03_TFT' 
  * Target:  'Target 1' 
  */
 

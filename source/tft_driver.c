@@ -512,7 +512,7 @@ unsigned short print3,print4;
 
 if(DimFont == 8)
 {
-     ptrfont = &FONT_8x8;
+     ptrfont = FONT_8x8;
      Cptrfont = (C-32)*8;
      ptrfont = ptrfont + Cptrfont;
 
@@ -546,7 +546,7 @@ if(DimFont == 8)
 
 else if(DimFont == 16)
 {
-     ptrfont = &FONT_16x16;
+     ptrfont = FONT_16x16;
      Cptrfont = (C-32)*32;
      ptrfont = ptrfont + Cptrfont;
 
@@ -586,7 +586,7 @@ else if(DimFont == 16)
 }
 
 
-void TFT_Text(unsigned char* S,unsigned short x,unsigned short y,char DimFont,unsigned short Fcolor,unsigned short Bcolor)
+void TFT_Text(char * S,unsigned short x,unsigned short y,char DimFont,unsigned short Fcolor,unsigned short Bcolor)
 {
   int lenght,cnt;
   char buffer[24];
