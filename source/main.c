@@ -4,16 +4,18 @@ void delay_ms(int delay);
 
 int main(){
 	TFT_Init();
+	TFT_Fill(Black);
 	while(1){
-		TFT_Fill(2016);
+		TFT_Fill(Black);
 		delay_ms(1000);
-		TFT_Fill(63488);
-		delay_ms(1000);
+		TFT_Text("Hello",100,0,8,Green,Black);
+		TFT_Text("World",100,310,8,Green,Black);
+		delay_ms(5000);
 	}
 }
 
 void delay_ms(int delay){
-	delay=delay*1000;
+	delay=delay*8000;
 	for(int i=0; i<delay; i++){
 
 	}
